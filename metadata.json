@@ -1,0 +1,7 @@
+{
+  "name": "StockFlow AI",
+  "description": "Analyze. Prompt. Rank. Sell. High-performance stock market strategy and AI prompt engineering.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
