@@ -1,11 +1,13 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { MediaFile, DirectorResponse, StockSenseiResponse, MarketInsight } from "../types";
 
-// 改成這樣，讓它去讀取我們在 Vercel 設定的 VITE_GEMINI_API_KEY
+// 設定 AI 連線 (讀取 Vercel 環境變數)
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
-// 改成現在真實存在的模型，不然會 404
+
+// 【關鍵修復】統一使用最穩定的 Flash 模型，避免 404 錯誤
 const MODEL_ID = "gemini-1.5-flash";
 
+// --- Schema 定義 (保持原樣) ---
 const stockSenseiSchema = {
   type: Type.OBJECT,
   properties: {
@@ -76,6 +78,8 @@ const directorSchema = {
   required: ["analysis", "prompt"],
 };
 
+// --- API 功能區 ---
+
 export const getMarketInsights = async (): Promise<MarketInsight> => {
   try {
     const today = new Date().toISOString().split('T')[0];
@@ -83,7 +87,7 @@ export const getMarketInsights = async (): Promise<MarketInsight> => {
       你現在是「StockFlow 智慧大腦」，全球頂尖圖庫市場分析官。
       當前日期是：${today}。
       你的任務是分析當前國際圖庫（Adobe Stock, Shutterstock, Getty Images）的搜尋趨勢、季節性需求與高頻關鍵字。
-      請務必根據當前日期，精準預測接下來 2-3 個月的全球重大節慶（例如：跨年慶典、元旦、農曆新年、情人節、春季旅遊等）。
+      請務必根據當前日期，精準預測接下來 2-3 個月的全球重大節慶。
       
       輸出要求（繁體中文）：
       1. 【熱門趨勢】：列出 3 個當前全球最熱賣的視覺主題。
@@ -93,7 +97,7 @@ export const getMarketInsights = async (): Promise<MarketInsight> => {
     `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: MODEL_ID, // 【修復】原本是 gemini-3-flash-preview (錯誤)，改成 MODEL_ID
       contents: `請分析從 ${today} 開始的全球圖庫市場趨勢與建議。`,
       config: {
         systemInstruction,
@@ -125,7 +129,7 @@ export const generateStockSenseiAnalysis = async (media: MediaFile): Promise<Sto
   try {
     const systemInstruction = `
       你現在是「StockSensei X」，全球頂尖圖庫 SEO 專家。
-      你不需要進行任何視覺或市場 analysis。你的唯一任務是針對使用者提供的圖片、影片或文字描述，生成專業的英文 SEO 套件。
+      你的唯一任務是針對使用者提供的圖片、影片或文字描述，生成專業的英文 SEO 套件。
       
       輸出要求：
       1. 【SEO Titles】: 提供 2 個精準標題。
@@ -134,7 +138,7 @@ export const generateStockSenseiAnalysis = async (media: MediaFile): Promise<Sto
       
       規則：
       - 內容全部使用英文。
-      - 標題必須符合 Adobe Stock, Shutterstock 的商業命名標準（包含具象描述與場景關鍵字）。
+      - 標題必須符合 Adobe Stock, Shutterstock 的商業命名標準。
     `;
 
     const parts: any[] = [];
@@ -164,7 +168,7 @@ export const generateStockSenseiAnalysis = async (media: MediaFile): Promise<Sto
 export const generateReversePrompt = async (media: MediaFile): Promise<DirectorResponse> => {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: MODEL_ID, // 【修復】原本是 gemini-3-flash-preview (錯誤)，改成 MODEL_ID
       contents: {
         parts: [
             { text: "請分析這份素材。我要先製作一張風格類似的「靜態圖片」，請給我 Image Prompt。" },
