@@ -1,13 +1,13 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { MediaFile, DirectorResponse, StockSenseiResponse, MarketInsight } from "../types";
 
-// 設定 AI 連線 (讀取 Vercel 環境變數)
+// 設定 AI 連線
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
-// 【關鍵修復】統一使用最穩定的 Flash 模型，避免 404 錯誤
-const MODEL_ID = "gemini-1.5-flash-001";
+// 【關鍵修復】改用完整版本號，解決影片分析時的 404 錯誤
+const MODEL_ID = "gemini-1.5-pro-001"; 
 
-// --- Schema 定義 (保持原樣) ---
+// --- 以下 Schema 定義保持不變 ---
 const stockSenseiSchema = {
   type: Type.OBJECT,
   properties: {
@@ -87,7 +87,6 @@ export const getMarketInsights = async (): Promise<MarketInsight> => {
       你現在是「StockFlow 智慧大腦」，全球頂尖圖庫市場分析官。
       當前日期是：${today}。
       你的任務是分析當前國際圖庫（Adobe Stock, Shutterstock, Getty Images）的搜尋趨勢、季節性需求與高頻關鍵字。
-      請務必根據當前日期，精準預測接下來 2-3 個月的全球重大節慶。
       
       輸出要求（繁體中文）：
       1. 【熱門趨勢】：列出 3 個當前全球最熱賣的視覺主題。
@@ -97,7 +96,7 @@ export const getMarketInsights = async (): Promise<MarketInsight> => {
     `;
 
     const response = await ai.models.generateContent({
-      model: MODEL_ID, // 【修復】原本是 gemini-3-flash-preview (錯誤)，改成 MODEL_ID
+      model: MODEL_ID,
       contents: `請分析從 ${today} 開始的全球圖庫市場趨勢與建議。`,
       config: {
         systemInstruction,
@@ -135,10 +134,6 @@ export const generateStockSenseiAnalysis = async (media: MediaFile): Promise<Sto
       1. 【SEO Titles】: 提供 2 個精準標題。
       2. 【Best Title】: 選出最符合圖庫搜尋權重的一個標題。
       3. 【Keywords】: 提供 35 到 50 個英文關鍵字，以逗號分隔。
-      
-      規則：
-      - 內容全部使用英文。
-      - 標題必須符合 Adobe Stock, Shutterstock 的商業命名標準。
     `;
 
     const parts: any[] = [];
@@ -168,7 +163,7 @@ export const generateStockSenseiAnalysis = async (media: MediaFile): Promise<Sto
 export const generateReversePrompt = async (media: MediaFile): Promise<DirectorResponse> => {
   try {
     const response = await ai.models.generateContent({
-      model: MODEL_ID, // 【修復】原本是 gemini-3-flash-preview (錯誤)，改成 MODEL_ID
+      model: MODEL_ID,
       contents: {
         parts: [
             { text: "請分析這份素材。我要先製作一張風格類似的「靜態圖片」，請給我 Image Prompt。" },
