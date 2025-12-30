@@ -5,7 +5,7 @@ import { MediaFile, DirectorResponse, StockSenseiResponse, MarketInsight } from 
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 // 【關鍵修復】改用完整版本號，解決影片分析時的 404 錯誤
-const MODEL_ID = "gemini-1.5-flash-latest"; 
+const MODEL_ID = "gemini-1.5-pro"; 
 
 // --- 以下 Schema 定義保持不變 ---
 const stockSenseiSchema = {
