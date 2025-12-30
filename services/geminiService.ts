@@ -1,8 +1,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { MediaFile, DirectorResponse, StockSenseiResponse, MarketInsight } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-const MODEL_ID = "gemini-3-pro-preview";
+// 改成這樣，讓它去讀取我們在 Vercel 設定的 VITE_GEMINI_API_KEY
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+// 改成現在真實存在的模型，不然會 404
+const MODEL_ID = "gemini-1.5-flash";
 
 const stockSenseiSchema = {
   type: Type.OBJECT,
